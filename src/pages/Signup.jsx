@@ -14,6 +14,9 @@ export default function Signup() {
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  const isValidPassword = (password) =>
+    /^(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/]).{8,}$/.test(password);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
@@ -44,22 +47,29 @@ export default function Signup() {
         setMessage("Invalid email or password");
         setMessageType("error");
       }
-    } else {
+    } 
+    
+    else {
       if (!name || !email || !password || !confirmPassword) {
         setMessage("Please fill in all fields");
         setMessageType("error");
         return;
       }
+
       if (!isValidEmail(email)) {
         setMessage("Please enter a valid email");
         setMessageType("error");
         return;
       }
-      if (password.length < 6) {
-        setMessage("Password must be at least 6 characters");
+
+      if (!isValidPassword(password)) {
+        setMessage(
+          "Password must be at least 8 characters and contain at least one special character."
+        );
         setMessageType("error");
         return;
       }
+
       if (password !== confirmPassword) {
         setMessage("Passwords do not match");
         setMessageType("error");
@@ -108,11 +118,17 @@ export default function Signup() {
             </h1>
           </div>
 
-          <img
-            src="/travel-illustration.png"
-            alt="Travel Illustration"
+          {/* ONLY CHANGE: Video instead of image */}
+          <video
+            src="/travel-bg.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
             className={styles["placeholder-image"]}
           />
+          {/* END OF CHANGE */}
+
         </div>
 
         {/* RIGHT SECTION */}
@@ -122,22 +138,16 @@ export default function Signup() {
               {isLogin ? "Login to OuterMiles" : "Create an Account"}
             </h2>
 
-            {/* GOOGLE BUTTON */}
-            <button
-              type="button"
-              className={styles.googleBtn}
-            >
+            <button type="button" className={styles.googleBtn}>
               <div className={styles.googleIconWrapper}>
                 <img
-              className={styles.googleIcon}
-               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-             alt="Google logo"
-             />
-
-
+                  className={styles.googleIcon}
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google logo"
+                />
               </div>
               <span className={styles.btnText}>
-                {isLogin ? "Login in with Google" : "Sign up with Google"}
+                {isLogin ? "Login with Google" : "Sign up with Google"}
               </span>
             </button>
 
@@ -196,7 +206,7 @@ export default function Signup() {
                     <input
                       type="password"
                       className={styles["form-input"]}
-                      placeholder="Password"
+                      placeholder="Password (min 8 chars + special)"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
