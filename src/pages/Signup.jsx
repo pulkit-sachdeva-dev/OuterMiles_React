@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Signup.module.css";
@@ -13,7 +14,6 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const isValidPassword = (password) =>
     /^(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/]).{8,}$/.test(password);
 
@@ -22,6 +22,7 @@ export default function Signup() {
     setMessage("");
     setMessageType("");
 
+    // ====================== LOGIN ======================
     if (isLogin) {
       if (!email || !password) {
         setMessage("Please fill in all fields");
@@ -34,14 +35,13 @@ export default function Signup() {
         return;
       }
 
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const existingUser = users.find(
-        (user) => user.email === email && user.password === password
-      );
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find(u => u.email === email && u.password === password);
 
-      if (existingUser) {
-        setMessage(`Welcome back, ${existingUser.name}!`);
+      if (user) {
+        setMessage(`Welcome back, ${user.name}!`);
         setMessageType("success");
+        localStorage.setItem("currentUser", JSON.stringify(user));
         setTimeout(() => navigate("/dashboard"), 800);
       } else {
         setMessage("Invalid email or password");
@@ -49,54 +49,54 @@ export default function Signup() {
       }
     } 
     
+    // ====================== SIGNUP ======================
     else {
       if (!name || !email || !password || !confirmPassword) {
         setMessage("Please fill in all fields");
         setMessageType("error");
         return;
       }
-
       if (!isValidEmail(email)) {
         setMessage("Please enter a valid email");
         setMessageType("error");
         return;
       }
-
       if (!isValidPassword(password)) {
-        setMessage(
-          "Password must be at least 8 characters and contain at least one special character."
-        );
+        setMessage("Password must be at least 8 characters and contain at least one special character.");
         setMessageType("error");
         return;
       }
-
       if (password !== confirmPassword) {
         setMessage("Passwords do not match");
         setMessageType("error");
         return;
       }
 
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const existingUser = users.find((user) => user.email === email);
-
-      if (existingUser) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      if (users.find(u => u.email === email)) {
         setMessage("Email already exists! Please log in.");
         setMessageType("error");
         return;
       }
 
-      users.push({ name, email, password });
+      // Create user
+      const newUser = { name, email, password };
+      users.push(newUser);
       localStorage.setItem("users", JSON.stringify(users));
 
-      setMessage(`Account created! Welcome, ${name}!`);
+      // Show success + switch to login form
+      setMessage("Account created successfully! Please log in.");
       setMessageType("success");
+
+      // Switch to login mode and clear signup fields
       setTimeout(() => {
         setIsLogin(true);
         setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-      }, 800);
+        setMessage("");
+      }, 1500);
     }
   };
 
@@ -118,7 +118,6 @@ export default function Signup() {
             </h1>
           </div>
 
-          {/* ONLY CHANGE: Video instead of image */}
           <video
             src="/travel-bg.mp4"
             autoPlay
@@ -127,8 +126,6 @@ export default function Signup() {
             playsInline
             className={styles["placeholder-image"]}
           />
-          {/* END OF CHANGE */}
-
         </div>
 
         {/* RIGHT SECTION */}
@@ -156,6 +153,7 @@ export default function Signup() {
             </div>
 
             <form onSubmit={handleSubmit}>
+              {/* Login Fields */}
               {isLogin && (
                 <>
                   <div className={styles["form-group"]}>
@@ -182,6 +180,7 @@ export default function Signup() {
                 </>
               )}
 
+              {/* Signup Fields */}
               {!isLogin && (
                 <>
                   <div className={styles["form-group"]}>
@@ -223,6 +222,7 @@ export default function Signup() {
                 </>
               )}
 
+              {/* Success/Error Message */}
               {message && (
                 <div
                   className={`${styles.message} ${styles[messageType]}`}
@@ -251,7 +251,6 @@ export default function Signup() {
                 </button>
               </div>
             </form>
-
           </div>
         </div>
       </div>
